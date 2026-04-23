@@ -137,6 +137,138 @@ python agent.py
 - **Model**: XGBoost with 12-month lag features
 - **Predictions**: 2025-2026 monthly risk forecasts
 
+## Data Processing Details
+
+### 1. Spatial Grid Construction (`map_dividision.py`)
+
+- Reads LA city boundary shapefile and reprojects to `EPSG:32611` (UTM Zone 11N, meter-based).
+- Builds a fishnet with fixed `400m × 400m` cell size over the full boundary bounding box.
+- Clips fishnet by city boundary polygon to remove outside cells.
+- Saves final analysis grid to `data/City_Boundary/LA_400m_grid.shp`.
+
+### 2. Crime Data Harmonization (`crime_data_processing.py` + `safety_model_prepare.py`)
+
+- Merges source files (`2010-2019` + `2020-2024`) and removes duplicated incidents by `DR_NO`.
+- Uses the following fields for modeling panel generation:
+  - `DR_NO`
+  - `LAT`, `LON`
+  - `DATE OCC`
+  - `Crm Cd Desc`
+- Cleans incidents before spatial aggregation:
+  - Parses `LAT/LON` to numeric
+  - Parses `DATE OCC` to datetime
+  - Drops null/invalid coordinates and invalid timestamps
+  - Removes zero coordinates `(LAT=0 or LON=0)`
+- Maps crime descriptions into 2 groups:
+  - `Violence`: if `Crm Cd Desc` appears in predefined violent-crime set
+  - `Property`: all other records
+- Converts points from `EPSG:4326` to grid CRS and does spatial join (`within`) to assign `grid_id`.
+- Aggregates to monthly panel:
+  - `property_crime`
+  - `violence_crime`
+  - `crime_count = property_crime + violence_crime`
+- Expands to a complete `grid_id × month_start` panel and fills missing combinations with `0` (important for sparse time series).
+- Caches panel to `data/monthly_crime_panel.csv`.
+
+### 3. Static Spatial Features (`safety_model_prepare.py`)
+
+- **Building features** from `Building_Footprints-shp/building.shp`:
+  - `building_count`: number of building centroids within grid
+  - `building_area_sum`: summed intersection area of buildings with grid
+  - `building_coverage_ratio = building_area_sum / grid_area`
+  - `mean_building_area = building_area_sum / building_count`
+- **POI features** from OpenStreetMap (`osmnx`):
+  - Queries tags: `amenity`, `shop`, `highway=bus_stop`, `public_transport`, `railway in {station, halt}`
+  - Chunked download + cache:
+    - Per-tile cache in `data/osm_chunks/`
+    - Merged cache in `data/osm_raw_buffer400.gpkg`
+  - Buffers POIs by 400m and joins grids with `intersects`
+  - Classifies POIs into `commercial`, `nightlife`, `transit`, `school`
+  - Creates:
+    - `commercial_density`
+    - `nightlife_density`
+    - `transit_density`
+    - `school_density`
+    - `poi_total_count`
+    - `poi_diversity` (entropy over POI category counts)
+
+### 4. Time-Series Feature Engineering (`safety_model_prepare.py`)
+
+- Adds calendar features:
+  - `month`, `year`
+  - `month_sin`, `month_cos` (cyclic month encoding)
+  - `time_idx` (monotonic month index)
+- For each target (`property_crime`, `violence_crime`) creates:
+  - Lags: `lag1`, `lag2`, `lag3`, `lag6`, `lag12`
+  - Rolling means using past-only window: `roll3`, `roll6`, `roll12`
+  - Label: `target_next` (next-month value via `shift(-1)`)
+- Drops rows that do not have complete lag/rolling history or missing `target_next`.
+
+## Modeling Details
+
+### 1. Training Setup (`safety_main.py`)
+
+- Trains **two separate XGBoost regressors**:
+  - Property model predicts `property_crime_target_next`
+  - Violence model predicts `violence_crime_target_next`
+- Default training cutoff: `train_end = 2024-11-30`.
+- Feature set: all engineered columns except `grid_id`, `month_start`, and current model target column.
+- Core XGBoost settings:
+  - `objective=reg:squarederror`
+  - `tree_method=hist`
+  - `max_depth=4`
+  - `eta=0.03`
+  - `subsample=0.7`
+  - `colsample_bytree=0.7`
+  - `gamma=1`
+  - `min_child_weight=10`
+  - `num_boost_round=600`
+  - plus regularization (`reg_alpha`, `reg_lambda`) for property model
+
+### 2. Recursive Forecasting (2025-2026)
+
+- Forecast horizon: `2025-01` to `2026-12` (monthly).
+- Uses recursive one-step-ahead prediction:
+  1. Build features for `current_month`
+  2. Predict next month
+  3. Append predicted month back to working panel
+  4. Continue to next step
+- Predictions are clipped to non-negative values.
+
+### 3. Annual Risk & Safety Scoring
+
+- Aggregates monthly predictions over 2026 per grid:
+  - `pred_property_annual = sum(pred_property)`
+  - `pred_violence_annual = sum(pred_violence)`
+- Weighted risk formula:
+  - `risk = 0.4 * pred_property_annual + 0.6 * pred_violence_annual`
+- Relative ranking and score:
+  - `risk_rank`: descending risk rank (`1` = highest risk)
+  - `risk_norm`: percentile rank of risk
+  - `safety_score = 100 * (1 - risk_norm)`
+- Safety level bins:
+  - `Very Unsafe` (<=20)
+  - `Unsafe` (20-40]
+  - `Moderate` (40-60]
+  - `Safe` (60-80]
+  - `Very Safe` (>80)
+- Marks hotspot flag:
+  - `hotspot_2026_top10pct = 1` if grid is in top 10% highest risk.
+
+## Validation & Reproducibility Notes
+
+- `code/safety_modeling.py` is an evaluation script (not part of default `main.py` pipeline):
+  - Expanding-window folds from 2020 to 2024
+  - Reports RMSE/MAE for property and violence models
+  - Reports combined weighted-risk RMSE/MAE
+  - Reports hotspot overlap metrics (`Hit Rate`, `Jaccard`)
+  - Writes summary to `output/safety_folds_results.csv`
+- Pipeline is cache-aware:
+  - If `monthly_crime_panel.csv`, OSM cache, and output files already exist, reruns may skip regeneration.
+  - To fully rebuild features from raw data, remove cached files in `data/` and `output/` before rerun.
+- Dependency note:
+  - `osmnx` is required by POI feature preparation logic in `safety_model_prepare.py`.
+
 ## Dependencies
 
 See `code/requirements.txt`:
