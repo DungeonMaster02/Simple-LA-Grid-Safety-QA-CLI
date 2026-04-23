@@ -124,9 +124,9 @@ def classify(desc):
 
 if __name__=="__main__":
     combined = Path("../data/Crime_Data_from_2010_2024.csv")
-    if not combined.exsits():
-        datafile1 = "../data/Crime_Data_from_2010_to_2019.csv"
-        datafile2 = "../data/Crime_Data_from_2020_to_2024.csv"
+    if not combined.exists():
+        datafile1 = "../data/Crime_Data_from_2010_2019.csv"
+        datafile2 = "../data/Crime_Data_from_2020_2024.csv"
         combine(datafile1,datafile2)
     df = pd.read_csv("../data/Crime_Data_from_2010_2024.csv")
     # crime_types = sorted(df['Crm Cd Desc'].dropna().unique())

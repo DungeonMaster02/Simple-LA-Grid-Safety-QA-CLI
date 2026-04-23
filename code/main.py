@@ -71,26 +71,21 @@ def run_pipeline():
         if stage == "grid":
             print("Missing grid data, running map_dividision.py ...")
             subprocess.run([sys.executable, "map_dividision.py"], check=True)
-            print("Please run main.py again to continue the pipeline.")
         elif stage == "crime":
             print("Missing combined crime data, running crime_data_processing.py ...")
             subprocess.run([sys.executable, "crime_data_processing.py"], check=True)
-            print("Please run main.py again to continue the pipeline.")
 
         elif stage == "prepare":
             print("Missing monthly panel data, running safety_model_prepare.py ...")
             subprocess.run([sys.executable, "safety_model_prepare.py"], check=True)
-            print("Please run main.py again to continue the pipeline.")
 
         elif stage == "safety":
             print("Missing safety model outputs, running safety_main.py ...")
             subprocess.run([sys.executable, "safety_main.py"], check=True)
-            print("Please run main.py again to continue the pipeline.")
 
         elif stage == "context":
             print("Missing agent context files, running prepare_agent_context.py ...")
             subprocess.run([sys.executable, "prepare_agent_context.py"], check=True)
-            print("Please run main.py again to continue the pipeline.")
 
         elif stage == "agent":
             break
