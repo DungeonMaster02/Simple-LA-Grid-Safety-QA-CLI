@@ -379,7 +379,6 @@ def run_cli(grid_gdf, scores, provider: str, model: str):
         try:
             question = input("\nYou> ").strip()
         except (EOFError, KeyboardInterrupt):
-            print("\nGoodbye.")
             break
 
         if not question:
@@ -420,6 +419,8 @@ def main():
 if __name__ == "__main__":
     try:
         main()
+    except KeyboardInterrupt:
+        pass
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
