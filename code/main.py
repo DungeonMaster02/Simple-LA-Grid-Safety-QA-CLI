@@ -12,10 +12,10 @@ def ensure_inputs():
     building_shp = Path("../data/Building_Footprints-shp/building.shp")
     city_boundary_shp = Path("../data/City_Boundary/City_Boundary.shp")
 
-    crime_data1 = Path("../data/Crime_Data_from_2010_2019.csv")
-    crime_data2 = Path("../data/Crime_Data_from_2020_2024.csv")
+    crime_data1 = Path("../data/Crime_Data_from_2010_to_2019.csv")
+    crime_data2 = Path("../data/Crime_Data_from_2020_to_2024.csv")
     # or
-    combined_crime = Path("../data/Crime_Data_from_2010_2024.csv")
+    combined_crime = Path("../data/Crime_Data_from_2010_to_2024.csv")
 
     if not building_shp.exists():
         raise FileNotFoundError(f"Missing building shapefile: {building_shp}")
@@ -34,11 +34,11 @@ def ensure_inputs():
 def check_stage():
     data_dir = Path("../data")
     output_dir = Path("../output")
-    combined_crime = data_dir / "Crime_Data_from_2010_2024.csv"
+    combined_crime = data_dir / "Crime_Data_from_2010_to_2024.csv"
     grid_shp = data_dir / "City_Boundary/LA_400m_grid.shp"
     panel = data_dir / "monthly_crime_panel.csv"
     
-    future_pred = output_dir / "future_monthly_predictions_2025_2026.csv"
+    future_pred = output_dir / "future_monthly_predictions_2025_to_2026.csv"
     final_grid = output_dir / "final_grid_safety_2026.csv"
     grid_scores = output_dir / "grid_scores.csv"
 

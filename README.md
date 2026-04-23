@@ -21,13 +21,13 @@ Project5/
 │   ├── City_Boundary/             # LA city boundary & 400m grid shapefile
 │   ├── Building_Footprints-shp/   # Building footprint data
 │   ├── osm_chunks/                # OpenStreetMap chunks
-│   ├── Crime_Data_from_2010_2024.csv    # Crime incident records
+│   ├── Crime_Data_from_2010_to_2024.csv    # Crime incident records
 │   ├── monthly_crime_panel.csv          # Aggregated monthly crime panel
 │   └── osm_raw_buffer400.gpkg           # OSM buffer dataset
 │
 ├── output/                        # Generated outputs (git-ignored)
 │   ├── grid_scores.csv
-│   ├── future_monthly_predictions_2025_2026.csv
+│   ├── future_monthly_predictions_2025_to_2026.csv
 │   ├── final_grid_safety_2026.csv
 │   └── agent_*.json               # Agent context files
 │
@@ -56,8 +56,8 @@ For local Ollama models, no API key is needed, but you need to run your ollama s
 ### 3. Data Requirements
 
 Place the following in the `data/` directory:
-- `Crime_Data_from_2010_2019.csv` - from https://data.lacity.org/Public-Safety/Crime-Data-from-2010-to-2019/63jg-8b9z/about_data
-- `Crime_Data_from_2020_2024.csv` - from https://data.lacity.org/Public-Safety/Crime-Data-from-2020-to-2024/2nrs-mtv8/about_data
+- `Crime_Data_from_2010_to_2019.csv` - from https://data.lacity.org/Public-Safety/Crime-Data-from-2010-to-2019/63jg-8b9z/about_data
+- `Crime_Data_from_2020_to_2024.csv` - from https://data.lacity.org/Public-Safety/Crime-Data-from-2020-to-2024/2nrs-mtv8/about_data
 - `City_Boundary/City_Boundary.shp` - from https://geohub.lacity.org/datasets/lahub::city-boundary/explore
 - `Building_Footprints-shp/building.shp` - from https://geohub.lacity.org/datasets/lahub::building-footprints/explore?location=34.018387%2C-118.410168%2C10
 
@@ -118,9 +118,9 @@ python agent.py
 | Path | Produced by | Purpose |
 |------|-------------|---------|
 | `data/City_Boundary/LA_400m_grid.shp` | `map_dividision.py` | 400m analysis grid |
-| `data/Crime_Data_from_2010_2024.csv` | `crime_data_processing.py` | Combined crime source data |
+| `data/Crime_Data_from_2010_to_2024.csv` | `crime_data_processing.py` | Combined crime source data |
 | `data/monthly_crime_panel.csv` | `safety_model_prepare.py` | Cached monthly panel for modeling |
-| `output/future_monthly_predictions_2025_2026.csv` | `safety_main.py` | Monthly forecasts |
+| `output/future_monthly_predictions_2025_to_2026.csv` | `safety_main.py` | Monthly forecasts |
 | `output/final_grid_safety_2026.csv` | `safety_main.py` | Annual aggregated safety metrics |
 | `output/grid_scores.csv` | `safety_main.py` | Final grid scores used by agent |
 | `output/agent_grid_context_basic.json` | `prepare_agent_context.py` | Compact context for QA |

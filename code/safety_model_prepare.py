@@ -77,7 +77,7 @@ def get_monthly_panel():
             panel[col] = panel[col].fillna(0).astype(int)
         return panel.sort_values(["grid_id", "month_start"]).reset_index(drop=True)
 
-    crime_path = Path("../data/Crime_Data_from_2010_2024.csv")
+    crime_path = Path("../data/Crime_Data_from_2010_to_2024.csv")
     if not crime_path.exists():
         raise FileNotFoundError(f"Crime file not found: {crime_path}")
 

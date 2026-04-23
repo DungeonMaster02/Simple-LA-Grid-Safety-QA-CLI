@@ -315,7 +315,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--monthly-csv",
         type=str,
-        default=str(OUTPUT_DIR / "future_monthly_predictions_2025_2026.csv"),
+        default=str(OUTPUT_DIR / "future_monthly_predictions_2025_to_2026.csv"),
         help="Path to monthly prediction CSV. Use empty string to skip.",
     )
     parser.add_argument(

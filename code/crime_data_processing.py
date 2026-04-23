@@ -12,10 +12,10 @@ def combine(datafile1,datafile2):
     data = pd.concat([data1, data2], ignore_index=True)
     data = data.drop_duplicates(subset=["DR_NO"])
 
-    data.to_csv("../data/Crime_Data_from_2010_2024.csv", index=False)
+    data.to_csv("../data/Crime_Data_from_2010_to_2024.csv", index=False)
 
 def get_monthly():
-    data = pd.read_csv("../data/Crime_Data_from_2010_2024.csv")
+    data = pd.read_csv("../data/Crime_Data_from_2010_to_2024.csv")
     data.drop_duplicates(inplace=True)
     crime_df = data[['DR_NO','LAT','LON',"DATE OCC"]]
     crime_df['Crime_Group'] = crime_df['type'].apply(classify)
@@ -123,12 +123,12 @@ def classify(desc):
     return 'Violence' if desc in violence_list else 'Property'
 
 if __name__=="__main__":
-    combined = Path("../data/Crime_Data_from_2010_2024.csv")
+    combined = Path("../data/Crime_Data_from_2010_to_2024.csv")
     if not combined.exists():
-        datafile1 = "../data/Crime_Data_from_2010_2019.csv"
-        datafile2 = "../data/Crime_Data_from_2020_2024.csv"
+        datafile1 = "../data/Crime_Data_from_2010_to_2019.csv"
+        datafile2 = "../data/Crime_Data_from_2020_to_2024.csv"
         combine(datafile1,datafile2)
-    df = pd.read_csv("../data/Crime_Data_from_2010_2024.csv")
+    df = pd.read_csv("../data/Crime_Data_from_2010_to_2024.csv")
     # crime_types = sorted(df['Crm Cd Desc'].dropna().unique())
     # for i, crime in enumerate(crime_types):
     #     print(f"{i+1}. {crime}")

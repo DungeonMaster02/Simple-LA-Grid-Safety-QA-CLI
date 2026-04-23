@@ -272,7 +272,7 @@ if __name__ == "__main__":
         pred_start="2025-01-01",
         pred_end="2026-12-01",
     )
-    future_monthly.to_csv(f"{output_dir}/future_monthly_predictions_2025_2026.csv", index=False)
+    future_monthly.to_csv(f"{output_dir}/future_monthly_predictions_2025_to_2026.csv", index=False)
 
     final_grid_safety = build_grid_safety_2026(future_monthly)
     final_grid_safety.to_csv(f"{output_dir}/final_grid_safety_2026.csv", index=False)
