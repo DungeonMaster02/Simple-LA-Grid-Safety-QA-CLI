@@ -1,0 +1,78 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Data folder - keep structure but ignore contents
+data/**/*
+!data/.gitkeep
+!data/City_Boundary/.gitkeep
+!data/Building_Footprints-shp/.gitkeep
+!data/osm_chunks/.gitkeep
+
+# Output folder - ignore all output files
+output/
+*.csv
+*.json
+*.txt
+!code/**/*.txt
+
+# Project specific
+project5_final/
+documents/
+*.pdf
+*.docx
+
+# Large files
+*.gpkg
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+
+#local
+*.zip
